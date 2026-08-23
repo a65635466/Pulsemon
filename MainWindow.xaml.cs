@@ -18,6 +18,8 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _refreshTimer;
     private bool _isMonitoringStopped;
 
+    public event Action<SystemStatus>? StatusUpdated;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -103,6 +105,7 @@ public partial class MainWindow : Window
         NetworkSpeedText.Text = $"D {status.DownloadMbps:0.0} Mbps  U {status.UploadMbps:0.0} Mbps";
 
         UpdatedAtText.Text = status.UpdatedAt.ToString("HH:mm:ss");
+        StatusUpdated?.Invoke(status);
     }
 
     public void StopMonitoring()

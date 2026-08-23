@@ -2,7 +2,9 @@ namespace PulseMon.Tray;
 
 public sealed class TrayManager : IDisposable
 {
-    private static readonly TimeSpan AnimationInterval = TimeSpan.FromMilliseconds(250);
+    private const double HighMemoryUsageThresholdPercent = 60d;
+    private static readonly TimeSpan NormalAnimationInterval = TimeSpan.FromMilliseconds(250);
+    private static readonly TimeSpan HighMemoryAnimationInterval = TimeSpan.FromMilliseconds(90);
 
     private readonly NotifyIcon _notifyIcon;
     private readonly Action _toggleWindow;
@@ -40,10 +42,32 @@ public sealed class TrayManager : IDisposable
 
         _animationTimer = new System.Windows.Forms.Timer
         {
-            Interval = (int)AnimationInterval.TotalMilliseconds
+            Interval = (int)NormalAnimationInterval.TotalMilliseconds
         };
         _animationTimer.Tick += OnAnimationTimerTick;
         _animationTimer.Start();
+    }
+
+    public void UpdateMemoryUsage(double memoryUsagePercent)
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        var targetInterval = memoryUsagePercent >= HighMemoryUsageThresholdPercent
+            ? HighMemoryAnimationInterval
+            : NormalAnimationInterval;
+        var targetText = memoryUsagePercent >= HighMemoryUsageThresholdPercent
+            ? $"PulseMon - RAM high ({memoryUsagePercent:0}%)"
+            : "PulseMon";
+
+        if (_animationTimer.Interval != (int)targetInterval.TotalMilliseconds)
+        {
+            _animationTimer.Interval = (int)targetInterval.TotalMilliseconds;
+        }
+
+        _notifyIcon.Text = targetText;
     }
 
     public void Dispose()
