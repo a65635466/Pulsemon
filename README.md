@@ -39,7 +39,9 @@ PulseMon/
 ├── PulseMon.csproj
 │
 ├── Assets/
-│   └── PulseMon.ico
+│   ├── PulseMon.ico
+│   ├── PulseMon-shortcut-v2.ico
+│   └── PulseMon.svg
 │
 ├── Models/
 │   ├── DeviceInfo.cs
@@ -144,6 +146,16 @@ GPU 값은 하드웨어와 드라이버 환경에 따라 읽지 못할 수 있�
 `TrayManager`는 Windows Forms `NotifyIcon`을 사용해 시스템 트레이 아이콘을 관리합니다. 좌클릭은 상태창 표시/숨김을 토글하고, 우클릭 메뉴는 상태창 열기, 설정 열기, 종료 기능을 제공합니다. 트레이 아이콘은 `TrayIconRenderer`에서 생성한 프레임으로 간단한 실행 애니메이션을 표시합니다.
 
 `MainWindow`가 1초마다 갱신한 `SystemStatus`를 `App`에 알리면, `App`은 RAM 사용률을 계산해 `TrayManager`에 전달합니다. RAM 사용률이 60% 이상이면 트레이 애니메이션 간격을 짧게 바꿔 더 빠르게 움직이게 하고, 60% 미만이면 기본 속도로 되돌립니다. 아이콘 디자인은 `TrayIconRenderer`의 프레임 생성 방식만 교체하면 같은 상태 전환 로직을 그대로 사용할 수 있습니다.
+
+## 아이콘
+
+최종 검정 치와와 디자인은 트레이 아이콘과 Windows 바로가기 아이콘에 함께 사용합니다. 트레이에서는 4프레임 달리기 모션을 표시하고, 바로가기에서는 고해상도 정지 아이콘과 `PULSEMON` 명칭을 사용합니다.
+
+![PulseMon 검정 치와와 아이콘](Assets/PulseMon.svg)
+
+- 트레이 아이콘: [`Assets/PulseMon.ico`](Assets/PulseMon.ico)
+- 바로가기 아이콘: [`Assets/PulseMon-shortcut-v2.ico`](Assets/PulseMon-shortcut-v2.ico)
+- 벡터 원본: [`Assets/PulseMon.svg`](Assets/PulseMon.svg)
 
 ## 빌드 및 실행
 

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <rect width="256" height="256" fill="none"/>
+  <path fill="#141416" d="M48 83 54 18l37 59-18 22zm75-8 20-58 29 71-22 14z"/>
+  <ellipse cx="91" cy="103" rx="52" ry="48" fill="#141416"/>
+  <path fill="#7e5335" d="M42 123c14-12 35-8 47 8l-7 22-37-7z"/>
+  <ellipse cx="40" cy="132" rx="13" ry="11" fill="#040405"/>
+  <ellipse cx="114" cy="99" rx="9" ry="10" fill="#f8f8ee"/>
+  <circle cx="116" cy="101" r="3.5" fill="#040405"/>
+  <path fill="#915b30" d="M105 84h19q3 0 3 4t-3 4h-19z"/>
+  <path fill="#cd2a26" d="M78 137h62v14H78z"/>
+  <path fill="#2369be" d="M91 143h112q14 0 14 14v37q0 14-14 14H91z"/>
+  <path fill="#4a91e1" d="M108 147h13v56h-13z"/>
+  <text x="129" y="181" fill="#f2f6fc" font-family="Arial, sans-serif" font-size="17" font-weight="700" letter-spacing="0.5">PULSEMON</text>
+  <path fill="#141416" d="M104 197h17v42h-17zm31 0h17v42h-17zm40 0h17v42h-17zm28-4h17v46h-17z"/>
+  <ellipse cx="214" cy="158" rx="31" ry="35" fill="#141416"/>
+  <path d="M211 140c28-31 43-23 37 13" fill="none" stroke="#141416" stroke-width="10" stroke-linecap="round"/>
+</svg>

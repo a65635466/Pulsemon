@@ -6,8 +6,6 @@ namespace PulseMon.Tray;
 internal static class TrayIconRenderer
 {
     private const int IconSize = 32;
-    private const int PixelSize = 2;
-    private const int GridSize = 16;
     private const int FrameCount = 8;
 
     public static Icon[] CreateRunningFrames()
@@ -27,121 +25,98 @@ internal static class TrayIconRenderer
         using var bitmap = new Bitmap(IconSize, IconSize);
         using var graphics = Graphics.FromImage(bitmap);
         graphics.Clear(Color.Transparent);
-        graphics.SmoothingMode = SmoothingMode.None;
-        graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-        graphics.PixelOffsetMode = PixelOffsetMode.Half;
+        graphics.SmoothingMode = SmoothingMode.AntiAlias;
+        graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+        graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
-        var highMemory = frameIndex >= FrameCount / 2;
-        var motionFrame = frameIndex % (FrameCount / 2);
-
-        DrawPixelDog(graphics, motionFrame, highMemory);
+        DrawDog(graphics, frameIndex % 4, frameIndex >= FrameCount / 2);
 
         using var iconHandle = new SafeIconHandle(bitmap.GetHicon());
         return (Icon)Icon.FromHandle(iconHandle.DangerousGetHandle()).Clone();
     }
 
-    private static void DrawPixelDog(Graphics graphics, int frameIndex, bool highMemory)
+    private static void DrawDog(Graphics graphics, int motionFrame, bool highMemory)
     {
-        var coat = Color.FromArgb(255, 24, 24, 25);
-        var coatHighlight = Color.FromArgb(255, 42, 42, 44);
-        var tan = Color.FromArgb(255, 196, 154, 108);
-        var eye = Color.FromArgb(255, 245, 248, 246);
-        var nose = Color.FromArgb(255, 5, 5, 6);
-        var cyan = Color.FromArgb(255, 0, 242, 255);
+        using var coat = new SolidBrush(Color.FromArgb(255, 20, 20, 22));
+        using var coatHighlight = new SolidBrush(Color.FromArgb(255, 48, 48, 52));
+        using var eyebrow = new SolidBrush(Color.FromArgb(255, 145, 91, 48));
+        using var muzzle = new SolidBrush(Color.FromArgb(255, 126, 83, 53));
+        using var eye = new SolidBrush(Color.FromArgb(255, 248, 248, 238));
+        using var nose = new SolidBrush(Color.FromArgb(255, 4, 4, 5));
+        using var blue = new SolidBrush(Color.FromArgb(255, 35, 105, 190));
+        using var blueLight = new SolidBrush(Color.FromArgb(255, 74, 145, 225));
+        using var red = new SolidBrush(Color.FromArgb(255, 205, 42, 38));
+        using var white = new SolidBrush(Color.FromArgb(255, 242, 246, 252));
+        using var speed = new SolidBrush(Color.FromArgb(255, 238, 180, 42));
 
-        using var coatBrush = new SolidBrush(coat);
-        using var highlightBrush = new SolidBrush(coatHighlight);
-        using var tanBrush = new SolidBrush(tan);
-        using var eyeBrush = new SolidBrush(eye);
-        using var noseBrush = new SolidBrush(nose);
-        using var cyanBrush = new SolidBrush(cyan);
+        var bounce = motionFrame is 1 or 3 ? -1 : 0;
+        var body = new RectangleF(9, 15 + bounce, 17, 8);
+        var head = new RectangleF(3, 6 + bounce, 11, 12);
 
-        // The ears, tan facial markings, and eye highlight stay fixed so the
-        // small icon remains recognizable while only the legs and speed marks move.
-        Pixel(graphics, coatBrush, 4, 1);
-        Pixel(graphics, coatBrush, 3, 2);
-        Pixel(graphics, coatBrush, 3, 3);
-        Pixel(graphics, coatBrush, 4, 4);
-        Pixel(graphics, coatBrush, 5, 3);
-        Pixel(graphics, tanBrush, 4, 3);
-
-        Pixel(graphics, coatBrush, 10, 1);
-        Pixel(graphics, coatBrush, 11, 2);
-        Pixel(graphics, coatBrush, 11, 3);
-        Pixel(graphics, coatBrush, 10, 4);
-        Pixel(graphics, coatBrush, 9, 3);
-        Pixel(graphics, tanBrush, 10, 3);
-
-        for (var y = 4; y <= 8; y++)
+        // Upright Chihuahua ears remain readable at tray-icon sizes.
+        graphics.FillPolygon(coat, new[]
         {
-            for (var x = 4; x <= 11; x++)
-            {
-                Pixel(graphics, coatBrush, x, y);
-            }
+            new PointF(4, 8 + bounce), new PointF(4, 1 + bounce), new PointF(8, 7 + bounce)
+        });
+        graphics.FillPolygon(coat, new[]
+        {
+            new PointF(10, 7 + bounce), new PointF(12, 1 + bounce), new PointF(15, 9 + bounce)
+        });
+
+        graphics.FillEllipse(coat, head);
+        graphics.FillEllipse(muzzle, new RectangleF(2, 13 + bounce, 7, 5));
+        graphics.FillEllipse(nose, new RectangleF(1, 14 + bounce, 3, 3));
+        graphics.FillEllipse(eye, new RectangleF(8, 10 + bounce, 2.2f, 2.2f));
+        graphics.FillEllipse(nose, new RectangleF(8.7f, 10.6f + bounce, 0.9f, 0.9f));
+        graphics.FillRectangle(eyebrow, new RectangleF(7.5f, 8.7f + bounce, 3.2f, 1.2f));
+
+        graphics.FillRectangle(red, new RectangleF(7, 17 + bounce, 8, 2));
+        graphics.FillRoundedRectangle(blue, body, 2);
+        graphics.FillRectangle(blueLight, new RectangleF(10, 16 + bounce, 2, 6));
+
+        // A compact white PulseMon mark stays legible in the larger shortcut icon.
+        graphics.FillRectangle(white, new RectangleF(14, 17 + bounce, 1, 4));
+        graphics.FillRectangle(white, new RectangleF(15, 17 + bounce, 2, 1));
+        graphics.FillRectangle(white, new RectangleF(15, 19 + bounce, 1, 1));
+
+        var legOffset = motionFrame switch
+        {
+            0 => new[] { -1, 1, 1, -1 },
+            1 => new[] { 0, -1, 2, 0 },
+            2 => new[] { 1, -1, -1, 1 },
+            _ => new[] { 0, 1, -1, 0 }
+        };
+        var legX = new[] { 11f, 15f, 20f, 23f };
+        for (var index = 0; index < legX.Length; index++)
+        {
+            var x = legX[index];
+            var y = 22 + legOffset[index] + bounce;
+            graphics.FillRoundedRectangle(coat, new RectangleF(x, y, 2.2f, 6), 1);
         }
 
-        Pixel(graphics, tanBrush, 5, 5);
-        Pixel(graphics, tanBrush, 9, 5);
-        Pixel(graphics, eyeBrush, 6, 6);
-        Pixel(graphics, eyeBrush, 9, 6);
-        Pixel(graphics, tanBrush, 6, 7);
-        Pixel(graphics, tanBrush, 7, 7);
-        Pixel(graphics, tanBrush, 8, 7);
-        Pixel(graphics, tanBrush, 9, 7);
-        Pixel(graphics, noseBrush, 7, 8);
-        Pixel(graphics, noseBrush, 8, 8);
-
-        for (var y = 9; y <= 11; y++)
-        {
-            for (var x = 5; x <= 10; x++)
-            {
-                Pixel(graphics, coatBrush, x, y);
-            }
-        }
-
-        Pixel(graphics, highlightBrush, 5, 9);
-        Pixel(graphics, highlightBrush, 10, 10);
-        Pixel(graphics, coatBrush, 11, 9);
-        Pixel(graphics, coatBrush, 12, 8);
-
-        var legs = highMemory
-            ? new[]
-            {
-                new Point(4, 12 + (frameIndex % 2)),
-                new Point(6, 13 - (frameIndex % 2)),
-                new Point(9, 13 - (frameIndex % 2)),
-                new Point(11, 12 + (frameIndex % 2))
-            }
-            : new[]
-            {
-                new Point(5, 12 + (frameIndex % 2)),
-                new Point(7, 13 - (frameIndex % 2)),
-                new Point(9, 13 - (frameIndex % 2)),
-                new Point(10, 12 + (frameIndex % 2))
-            };
-
-        foreach (var leg in legs)
-        {
-            Pixel(graphics, coatBrush, leg.X, leg.Y);
-            Pixel(graphics, coatBrush, leg.X + (frameIndex % 2 == 0 ? 0 : (leg.X < 8 ? -1 : 1)), leg.Y + 1);
-        }
+        graphics.FillEllipse(coat, new RectangleF(24, 12 + bounce, 7, 8));
+        graphics.DrawArc(new Pen(coat, 2.2f), new RectangleF(24, 4 + bounce, 7, 12), 285, 205);
 
         if (highMemory)
         {
-            Pixel(graphics, cyanBrush, 1, 9 + (frameIndex % 2));
-            Pixel(graphics, cyanBrush, 2, 9 + (frameIndex % 2));
-            Pixel(graphics, cyanBrush, 2, 12 - (frameIndex % 2));
-            Pixel(graphics, cyanBrush, 3, 12 - (frameIndex % 2));
+            using var speedPen = new Pen(speed, 1.5f);
+            graphics.DrawLine(speedPen, 1, 23 + bounce, 4, 23 + bounce);
+            graphics.DrawLine(speedPen, 2, 26 + bounce, 5, 26 + bounce);
         }
     }
+}
 
-    private static void Pixel(Graphics graphics, Brush brush, int x, int y)
+internal static class GraphicsExtensions
+{
+    public static void FillRoundedRectangle(this Graphics graphics, Brush brush, RectangleF rectangle, float radius)
     {
-        if (x < 0 || x >= GridSize || y < 0 || y >= GridSize)
-        {
-            return;
-        }
-
-        graphics.FillRectangle(brush, x * PixelSize, y * PixelSize, PixelSize, PixelSize);
+        using var path = new GraphicsPath();
+        var diameter = radius * 2;
+        path.AddArc(rectangle.X, rectangle.Y, diameter, diameter, 180, 90);
+        path.AddArc(rectangle.Right - diameter, rectangle.Y, diameter, diameter, 270, 90);
+        path.AddArc(rectangle.Right - diameter, rectangle.Bottom - diameter, diameter, diameter, 0, 90);
+        path.AddArc(rectangle.X, rectangle.Bottom - diameter, diameter, diameter, 90, 90);
+        path.CloseFigure();
+        graphics.FillPath(brush, path);
     }
 }
