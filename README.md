@@ -151,11 +151,8 @@ GPU 값은 하드웨어와 드라이버 환경에 따라 읽지 못할 수 있�
 
 최종 검정 치와와 디자인은 트레이 아이콘과 Windows 바로가기 아이콘에 함께 사용합니다. 트레이에서는 4프레임 달리기 모션을 표시하고, 바로가기에서는 고해상도 정지 아이콘과 `PULSEMON` 명칭을 사용합니다.
 
-![PulseMon 검정 치와와 아이콘](Assets/PulseMon.svg)
+<img width="692" height="817" alt="image" src="https://github.com/user-attachments/assets/7ddeb07f-8745-452a-8620-2797980817a0" />
 
-- 트레이 아이콘: [`Assets/PulseMon.ico`](Assets/PulseMon.ico)
-- 바로가기 아이콘: [`Assets/PulseMon-shortcut-v2.ico`](Assets/PulseMon-shortcut-v2.ico)
-- 벡터 원본: [`Assets/PulseMon.svg`](Assets/PulseMon.svg)
 
 ## 빌드 및 실행
 
