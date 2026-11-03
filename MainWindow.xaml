@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:PulseMon"
         Title="PulseMon"
-        SizeToContent="WidthAndHeight"
+        Width="560"
+        Height="760"
         Background="Transparent"
         AllowsTransparency="True"
         ResizeMode="NoResize"
@@ -11,36 +12,36 @@
         WindowStyle="None"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
-        <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#10141D" />
-        <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#254EDB" />
-        <SolidColorBrush x:Key="CardBackgroundBrush" Color="#1E3EB3" />
-        <SolidColorBrush x:Key="BorderBrush" Color="#C49B3E" />
-        <SolidColorBrush x:Key="PrimaryTextBrush" Color="#F8F9FA" />
-        <SolidColorBrush x:Key="SecondaryTextBrush" Color="#D5DDF5" />
-        <SolidColorBrush x:Key="LabelTextBrush" Color="#F8F9FA" />
-        <SolidColorBrush x:Key="AccentBrush" Color="#EBC56F" />
-        <SolidColorBrush x:Key="SuccessBrush" Color="#EBC56F" />
-        <SolidColorBrush x:Key="MutedTrackBrush" Color="#141A23" />
-        <SolidColorBrush x:Key="TitleBarBrush" Color="#1E3EB3" />
-        <SolidColorBrush x:Key="TitleBarTextBrush" Color="#F8F9FA" />
+        <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#171A1F" />
+        <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#272D34" />
+        <SolidColorBrush x:Key="CardBackgroundBrush" Color="#323A43" />
+        <SolidColorBrush x:Key="BorderBrush" Color="#647789" />
+        <SolidColorBrush x:Key="PrimaryTextBrush" Color="#E7E2DA" />
+        <SolidColorBrush x:Key="SecondaryTextBrush" Color="#AAA7A1" />
+        <SolidColorBrush x:Key="LabelTextBrush" Color="#AAA7A1" />
+        <SolidColorBrush x:Key="AccentBrush" Color="#91A58F" />
+        <SolidColorBrush x:Key="SuccessBrush" Color="#91A58F" />
+        <SolidColorBrush x:Key="MutedTrackBrush" Color="#1D2228" />
+        <SolidColorBrush x:Key="TitleBarBrush" Color="#323A43" />
+        <SolidColorBrush x:Key="TitleBarTextBrush" Color="#E7E2DA" />
 
-        <Style x:Key="MetricLabelStyle" TargetType="TextBlock">
-            <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="Foreground" Value="{DynamicResource LabelTextBrush}" />
-            <Setter Property="FontSize" Value="11" />
+        <Style x:Key="SectionBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+            <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="FontSize" Value="13" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="FontFamily" Value="Consolas" />
         </Style>
-
         <Style x:Key="MetricValueStyle" TargetType="TextBlock">
-            <Setter Property="TextAlignment" Value="Right" />
-            <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}" />
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="FontWeight" Value="Medium" />
             <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="FontWeight" Value="Medium" />
         </Style>
-
         <Style TargetType="ProgressBar">
             <Setter Property="Height" Value="5" />
             <Setter Property="Minimum" Value="0" />
@@ -66,187 +67,111 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
         <Style TargetType="Button">
             <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="FontSize" Value="12" />
-            <Setter Property="Padding" Value="6,3" />
+            <Setter Property="FontFamily" Value="Consolas" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Padding" Value="8,5" />
             <Setter Property="Cursor" Value="Hand" />
         </Style>
     </Window.Resources>
 
     <Border x:Name="RootPanel"
-            Width="380"
-            CornerRadius="10"
             Background="{DynamicResource PanelBackgroundBrush}"
             BorderBrush="{DynamicResource BorderBrush}"
             BorderThickness="2"
+            CornerRadius="10"
             MouseLeftButtonDown="OnRootPanelMouseLeftButtonDown">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="48" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0" Background="{DynamicResource TitleBarBrush}">
-                <TextBlock Margin="10,0,0,0"
-                           VerticalAlignment="Center"
-                           Foreground="{DynamicResource TitleBarTextBrush}"
-                           FontFamily="Consolas"
-                           FontSize="11"
-                           FontWeight="Bold"
-                           Text="PulseMon — System Monitor" />
-                <StackPanel Margin="0,0,8,0"
-                            HorizontalAlignment="Right"
-                            Orientation="Horizontal">
-                    <Ellipse Width="8" Height="8" Margin="0,0,5,0" Fill="{DynamicResource AccentBrush}" />
-                    <Ellipse Width="8" Height="8" Margin="0,0,5,0" Fill="#FFFFFF40" />
-                    <Button Width="18" Height="18" Padding="0" BorderThickness="0" Background="Transparent" Foreground="#FFFDF9" Click="OnHideButtonClicked" Content="×" />
+                <StackPanel Margin="16,0,0,0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Foreground="{DynamicResource AccentBrush}" FontFamily="Consolas" FontSize="18" Text="P" />
+                    <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource TitleBarTextBrush}" FontFamily="Consolas" FontSize="14" FontWeight="SemiBold" Text="PulseMon - System Monitor" />
+                </StackPanel>
+                <StackPanel Margin="0,0,12,0" HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="UpdatedAtText" Margin="0,0,12,0" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="11" Text="--:--:--" />
+                    <Ellipse Width="8" Height="8" Margin="0,0,12,0" Fill="{DynamicResource SuccessBrush}" />
+                    <Button Width="28" Height="28" Padding="0" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource PrimaryTextBrush}" FontSize="18" Click="OnHideButtonClicked" Content="x" />
                 </StackPanel>
             </Grid>
 
-            <Grid Grid.Row="1" Margin="16">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="14" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="14" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="14" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="14" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="14" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <Grid Grid.Row="0" Margin="0,0,0,0">
-                    <TextBlock Text="GAUGE PAD"
-                               Foreground="{DynamicResource PrimaryTextBrush}"
-                               FontFamily="Consolas"
-                               FontSize="18"
-                               FontWeight="Bold" />
-                    <TextBlock x:Name="UpdatedAtText"
-                               HorizontalAlignment="Right"
-                               VerticalAlignment="Bottom"
-                               Foreground="{DynamicResource SecondaryTextBrush}"
-                               FontFamily="Consolas"
-                               FontSize="10"
-                               Text="--:--:--" />
-                </Grid>
-
-                <TextBlock x:Name="AlertStatusText"
-                           Grid.Row="1"
-                           Margin="0,8,0,0"
-                           Foreground="#FFF1A8"
-                           FontFamily="Consolas"
-                           FontSize="10"
-                           FontWeight="Bold"
-                           TextWrapping="Wrap"
-                           Visibility="Collapsed" />
-
-                <Border Grid.Row="2"
-                        Padding="10"
-                        Background="{DynamicResource CardBackgroundBrush}"
-                        BorderBrush="{DynamicResource BorderBrush}"
-                        BorderThickness="1">
-                    <StackPanel>
-                        <TextBlock x:Name="DeviceModelText" Foreground="{DynamicResource PrimaryTextBrush}" FontFamily="Consolas" FontSize="12" FontWeight="Bold" Text="Device" />
-                        <TextBlock x:Name="DeviceCpuText" Margin="0,4,0,0" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="10" Text="CPU" />
-                        <TextBlock x:Name="DeviceGpuText" Margin="0,2,0,0" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="10" Text="GPU" />
-                    </StackPanel>
-                </Border>
-
-                <StackPanel Grid.Row="4">
-                    <Grid Margin="0,0,0,12">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="44" /><ColumnDefinition Width="*" /><ColumnDefinition Width="78" /></Grid.ColumnDefinitions>
-                        <TextBlock Text="CPU LOAD" Style="{StaticResource MetricLabelStyle}" />
-                        <ProgressBar x:Name="CpuProgressBar" Grid.Column="1" />
-                        <TextBlock x:Name="CpuUsageText" Grid.Column="2" Style="{StaticResource MetricValueStyle}" Text="0% / N/A" />
-                    </Grid>
-                    <Grid Margin="0,0,0,12">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="44" /><ColumnDefinition Width="*" /><ColumnDefinition Width="78" /></Grid.ColumnDefinitions>
-                        <TextBlock Text="MEMORY" Style="{StaticResource MetricLabelStyle}" />
-                        <ProgressBar x:Name="MemoryProgressBar" Grid.Column="1" Foreground="{DynamicResource SuccessBrush}" />
-                        <TextBlock x:Name="MemoryUsageText" Grid.Column="2" Style="{StaticResource MetricValueStyle}" Text="- / - GB" />
-                    </Grid>
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="44" /><ColumnDefinition Width="*" /><ColumnDefinition Width="78" /></Grid.ColumnDefinitions>
-                        <TextBlock Text="GPU UTIL" Style="{StaticResource MetricLabelStyle}" />
-                        <ProgressBar x:Name="GpuProgressBar" Grid.Column="1" />
-                        <TextBlock x:Name="GpuStatusText" Grid.Column="2" Style="{StaticResource MetricValueStyle}" Text="N/A" />
-                    </Grid>
-                </StackPanel>
-
-                <Border Grid.Row="6"
-                        Padding="10"
-                        Background="{DynamicResource CardBackgroundBrush}"
-                        BorderBrush="{DynamicResource BorderBrush}"
-                        BorderThickness="1">
-                    <Grid>
-                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" FontWeight="Bold" Text="SENSORS" />
-                        <TextBlock x:Name="SensorStatusText" HorizontalAlignment="Right" Foreground="{DynamicResource AccentBrush}" FontFamily="Consolas" FontSize="10" Text="CPU N/A / GPU N/A / FAN N/A" />
-                    </Grid>
-                </Border>
-
-                <Border Grid.Row="8"
-                        Padding="10"
-                        Background="#F8F9FA"
-                        BorderBrush="{DynamicResource BorderBrush}"
-                        BorderThickness="1">
-                    <Grid>
-                        <StackPanel>
-                            <TextBlock Foreground="#254EDB" FontFamily="Consolas" FontSize="9" FontWeight="Bold" Text="NETWORK STREAM" />
-                            <TextBlock x:Name="NetworkSpeedText" Margin="0,4,0,0" Foreground="#254EDB" FontFamily="Consolas" FontSize="12" FontWeight="Bold" Text="D - Mbps    U - Mbps" />
-                        </StackPanel>
-                        <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#C49B3E" FontFamily="Consolas" FontSize="9" FontWeight="Bold" Text="ONLINE" />
-                    </Grid>
-                </Border>
-
-                <Border Grid.Row="10"
-                        Padding="10"
-                        Background="{DynamicResource CardBackgroundBrush}"
-                        BorderBrush="{DynamicResource BorderBrush}"
-                        BorderThickness="1">
-                    <Grid>
-                        <StackPanel>
-                            <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" FontFamily="Consolas" FontSize="9" FontWeight="Bold" Text="BATTERY" />
-                            <TextBlock x:Name="BatteryStatusText" Margin="0,4,0,0" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="11" Text="N/A" />
-                        </StackPanel>
-                        <TextBlock x:Name="BatteryPercentText" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontFamily="Consolas" FontSize="14" FontWeight="Bold" Text="N/A" />
-                    </Grid>
-                </Border>
-
-                <Border Grid.Row="12"
-                        Padding="10"
-                        Background="{DynamicResource CardBackgroundBrush}"
-                        BorderBrush="{DynamicResource BorderBrush}"
-                        BorderThickness="1">
-                    <StackPanel>
+            <ScrollViewer Grid.Row="1" Padding="16,14" VerticalScrollBarVisibility="Hidden">
+                <StackPanel>
+                    <Border Margin="0,0,0,10" Padding="14,11" Style="{StaticResource SectionBorderStyle}">
                         <Grid>
-                            <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" FontFamily="Consolas" FontSize="9" FontWeight="Bold" Text="LAST 60 SECONDS" />
-                            <TextBlock x:Name="HistorySampleText" HorizontalAlignment="Right" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" Text="0 samples" />
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="10" FontWeight="SemiBold" Text="CURRENT HEALTH" />
+                                <StackPanel Margin="0,4,0,0" Orientation="Horizontal">
+                                    <Ellipse Width="10" Height="10" Margin="0,0,8,0" Fill="{DynamicResource SuccessBrush}" />
+                                    <TextBlock Foreground="{DynamicResource PrimaryTextBrush}" FontFamily="Consolas" FontSize="22" FontWeight="SemiBold" Text="System stable" />
+                                </StackPanel>
+                                <TextBlock Margin="0,4,0,0" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="11" Text="Monitoring all resources in real time." />
+                                <TextBlock x:Name="AlertStatusText" Margin="0,6,0,0" Foreground="{DynamicResource AccentBrush}" FontFamily="Consolas" FontSize="10" FontWeight="Bold" TextWrapping="Wrap" Visibility="Collapsed" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                <TextBlock HorizontalAlignment="Right" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" FontWeight="SemiBold" Text="DEVICE" />
+                                <TextBlock x:Name="DeviceModelText" Margin="0,4,0,0" HorizontalAlignment="Right" Foreground="{DynamicResource PrimaryTextBrush}" FontFamily="Consolas" FontSize="11" FontWeight="SemiBold" Text="DESKTOP-PC" />
+                                <TextBlock x:Name="DeviceCpuText" Margin="0,3,0,0" HorizontalAlignment="Right" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" Text="CPU" />
+                                <TextBlock x:Name="DeviceGpuText" Margin="0,2,0,0" HorizontalAlignment="Right" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" Text="GPU" />
+                            </StackPanel>
                         </Grid>
-                        <Canvas x:Name="UsageChartCanvas" Height="72" Margin="0,8,0,0" Background="{DynamicResource MutedTrackBrush}" />
-                        <Grid Margin="0,8,0,0">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                            <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" Text="CPU" />
-                            <TextBlock Grid.Column="1" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" Text="MEMORY" />
-                            <TextBlock Grid.Column="2" HorizontalAlignment="Right" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" Text="GPU" />
-                        </Grid>
-                    </StackPanel>
-                </Border>
+                    </Border>
 
-                <StackPanel Grid.Row="14" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Margin="0,0,6,0" Click="OnCopyDeviceInfoClicked" Content="Copy device info" />
-                    <Button Click="OnExportCsvClicked" Content="Export CSV" />
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                        <Border Margin="0,0,6,0" Padding="12" Style="{StaticResource SectionBorderStyle}">
+                            <StackPanel><TextBlock Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" FontWeight="SemiBold" Text="CPU" /><TextBlock x:Name="CpuUsageText" Margin="0,8,0,0" Style="{StaticResource MetricValueStyle}" Text="0% / N/A" /><ProgressBar x:Name="CpuProgressBar" Margin="0,8,0,0" /><TextBlock Margin="0,7,0,0" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" Text="Usage" /></StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" Margin="0,0,6,0" Padding="12" Style="{StaticResource SectionBorderStyle}">
+                            <StackPanel><TextBlock Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" FontWeight="SemiBold" Text="MEMORY" /><TextBlock x:Name="MemoryUsageText" Margin="0,8,0,0" Style="{StaticResource MetricValueStyle}" Text="- / - GB" /><ProgressBar x:Name="MemoryProgressBar" Margin="0,8,0,0" Foreground="{DynamicResource SuccessBrush}" /><TextBlock Margin="0,7,0,0" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" Text="Used / Total" /></StackPanel>
+                        </Border>
+                        <Border Grid.Column="2" Margin="0,0,6,0" Padding="12" Style="{StaticResource SectionBorderStyle}">
+                            <StackPanel><TextBlock Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" FontWeight="SemiBold" Text="GPU" /><TextBlock x:Name="GpuStatusText" Margin="0,8,0,0" Style="{StaticResource MetricValueStyle}" Text="N/A" /><ProgressBar x:Name="GpuProgressBar" Margin="0,8,0,0" /><TextBlock Margin="0,7,0,0" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" Text="Usage / Temp" /></StackPanel>
+                        </Border>
+                        <Border Grid.Column="3" Padding="12" Style="{StaticResource SectionBorderStyle}">
+                            <StackPanel><TextBlock Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" FontWeight="SemiBold" Text="NETWORK" /><TextBlock Margin="0,8,0,0" Foreground="{DynamicResource AccentBrush}" FontFamily="Consolas" FontSize="14" FontWeight="Medium" Text="LIVE" /><TextBlock Margin="0,9,0,0" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="9" Text="Adapter aggregate" TextWrapping="Wrap" /></StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                        <Border Margin="0,0,6,0" Padding="12,10" Style="{StaticResource SectionBorderStyle}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource SectionTitleStyle}" Text="NETWORK" />
+                                <Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions><TextBlock x:Name="NetworkSpeedText" Foreground="{DynamicResource PrimaryTextBrush}" FontFamily="Consolas" FontSize="11" Text="D - Mbps    U - Mbps" /><TextBlock Grid.Column="1" Foreground="{DynamicResource SuccessBrush}" FontFamily="Consolas" FontSize="10" FontWeight="SemiBold" Text="ONLINE" /></Grid>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" Padding="12,10" Style="{StaticResource SectionBorderStyle}">
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource SectionTitleStyle}" Text="SENSORS" />
+                                <TextBlock x:Name="SensorStatusText" Margin="0,8,0,0" Foreground="{DynamicResource PrimaryTextBrush}" FontFamily="Consolas" FontSize="11" Text="CPU N/A / GPU N/A / FAN N/A" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="0.8*" /><ColumnDefinition Width="1.2*" /></Grid.ColumnDefinitions>
+                        <Border Margin="0,0,6,0" Padding="12,10" Style="{StaticResource SectionBorderStyle}">
+                            <Grid><StackPanel><TextBlock Style="{StaticResource SectionTitleStyle}" Text="BATTERY" /><TextBlock x:Name="BatteryStatusText" Margin="0,6,0,0" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="11" Text="N/A" /></StackPanel><TextBlock x:Name="BatteryPercentText" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource AccentBrush}" FontFamily="Consolas" FontSize="18" FontWeight="Medium" Text="N/A" /></Grid>
+                        </Border>
+                        <Border Grid.Column="1" Padding="12,10" Style="{StaticResource SectionBorderStyle}">
+                            <StackPanel><Grid><TextBlock Style="{StaticResource SectionTitleStyle}" Text="HISTORY" /><TextBlock x:Name="HistorySampleText" HorizontalAlignment="Right" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="10" Text="0 samples" /></Grid><Canvas x:Name="UsageChartCanvas" Height="96" Margin="0,8,0,0" Background="{DynamicResource MutedTrackBrush}" /></StackPanel>
+                        </Border>
+                    </Grid>
+                    <Border Padding="12,10" Style="{StaticResource SectionBorderStyle}">
+                        <StackPanel><TextBlock Style="{StaticResource SectionTitleStyle}" Text="ACTIONS" /><Grid Margin="0,8,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="1.25*" /></Grid.ColumnDefinitions><Button Height="36" Margin="0,0,6,0" Click="OnCopyDeviceInfoClicked" Content="Copy device info" /><Button Grid.Column="1" Height="36" Margin="0,0,6,0" Click="OnExportCsvClicked" Content="Export CSV" /><Button Grid.Column="2" Height="36" Background="{DynamicResource AccentBrush}" BorderBrush="{DynamicResource AccentBrush}" Foreground="{DynamicResource MutedTrackBrush}" Click="OnExitButtonClicked" Content="Quit PulseMon" /></Grid></StackPanel>
+                    </Border>
                 </StackPanel>
-            </Grid>
+            </ScrollViewer>
         </Grid>
     </Border>
 </Window>

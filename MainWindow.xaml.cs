@@ -29,6 +29,7 @@ public partial class MainWindow : Window
 
     public event Action<SystemStatus>? StatusUpdated;
     public event Action<string>? AlertRaised;
+    public event Action? ExitRequested;
 
     public MainWindow()
     {
@@ -192,9 +193,9 @@ public partial class MainWindow : Window
 
         var width = Math.Max(1, UsageChartCanvas.ActualWidth);
         var height = Math.Max(1, UsageChartCanvas.ActualHeight);
-        AddChartLine(samples, width, height, sample => sample.CpuUsagePercent, "#EBC56F");
-        AddChartLine(samples, width, height, sample => sample.MemoryTotalGb <= 0 ? 0 : sample.MemoryUsedGb / sample.MemoryTotalGb * 100, "#7FD1AE");
-        AddChartLine(samples, width, height, sample => sample.GpuUsagePercent ?? 0, "#F28B82");
+        AddChartLine(samples, width, height, sample => sample.CpuUsagePercent, "#91A58F");
+        AddChartLine(samples, width, height, sample => sample.MemoryTotalGb <= 0 ? 0 : sample.MemoryUsedGb / sample.MemoryTotalGb * 100, "#A8B3C0");
+        AddChartLine(samples, width, height, sample => sample.GpuUsagePercent ?? 0, "#7F8F9F");
     }
 
     private void AddChartLine(IReadOnlyList<SystemStatus> samples, double width, double height, Func<SystemStatus, double> selector, string color)
@@ -326,6 +327,11 @@ public partial class MainWindow : Window
         Hide();
     }
 
+    private void OnExitButtonClicked(object sender, RoutedEventArgs e)
+    {
+        ExitRequested?.Invoke();
+    }
+
     public void ApplyTheme(AppTheme theme)
     {
         if (theme == AppTheme.Black)
@@ -347,18 +353,18 @@ public partial class MainWindow : Window
             return;
         }
 
-        SetBrush("WindowBackgroundBrush", "#10141D");
-        SetBrush("PanelBackgroundBrush", "#254EDB");
-        SetBrush("CardBackgroundBrush", "#1E3EB3");
-        SetBrush("BorderBrush", "#C49B3E");
-        SetBrush("PrimaryTextBrush", "#F8F9FA");
-        SetBrush("SecondaryTextBrush", "#D5DDF5");
-        SetBrush("LabelTextBrush", "#F8F9FA");
-        SetBrush("MutedTrackBrush", "#141A23");
-        SetBrush("AccentBrush", "#EBC56F");
-        SetBrush("SuccessBrush", "#EBC56F");
-        SetBrush("TitleBarBrush", "#1E3EB3");
-        SetBrush("TitleBarTextBrush", "#F8F9FA");
+        SetBrush("WindowBackgroundBrush", "#171A1F");
+        SetBrush("PanelBackgroundBrush", "#272D34");
+        SetBrush("CardBackgroundBrush", "#323A43");
+        SetBrush("BorderBrush", "#647789");
+        SetBrush("PrimaryTextBrush", "#E7E2DA");
+        SetBrush("SecondaryTextBrush", "#AAA7A1");
+        SetBrush("LabelTextBrush", "#AAA7A1");
+        SetBrush("MutedTrackBrush", "#1D2228");
+        SetBrush("AccentBrush", "#91A58F");
+        SetBrush("SuccessBrush", "#91A58F");
+        SetBrush("TitleBarBrush", "#323A43");
+        SetBrush("TitleBarTextBrush", "#E7E2DA");
         Background = System.Windows.Media.Brushes.Transparent;
         RootPanel.Effect = null;
     }

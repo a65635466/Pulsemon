@@ -39,6 +39,7 @@ public partial class App : System.Windows.Application
         _mainWindow.Closing += OnMainWindowClosing;
         _mainWindow.StatusUpdated += OnMainWindowStatusUpdated;
         _mainWindow.AlertRaised += OnMainWindowAlertRaised;
+        _mainWindow.ExitRequested += ExitApplication;
 
         _trayManager = new TrayManager(ToggleMainWindow, ShowMainWindow, ShowSettingsWindow, ExitApplication);
         ShowMainWindow();
@@ -57,6 +58,7 @@ public partial class App : System.Windows.Application
             _mainWindow.Closing -= OnMainWindowClosing;
             _mainWindow.StatusUpdated -= OnMainWindowStatusUpdated;
             _mainWindow.AlertRaised -= OnMainWindowAlertRaised;
+            _mainWindow.ExitRequested -= ExitApplication;
             _mainWindow.StopMonitoring();
         }
 
