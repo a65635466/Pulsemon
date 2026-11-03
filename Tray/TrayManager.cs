@@ -70,6 +70,19 @@ public sealed class TrayManager : IDisposable
         _notifyIcon.Text = targetText;
     }
 
+    public void ShowAlert(string message)
+    {
+        if (_disposed || string.IsNullOrWhiteSpace(message))
+        {
+            return;
+        }
+
+        _notifyIcon.BalloonTipTitle = "PulseMon alert";
+        _notifyIcon.BalloonTipText = message;
+        _notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
+        _notifyIcon.ShowBalloonTip(5000);
+    }
+
     public void Dispose()
     {
         if (_disposed)

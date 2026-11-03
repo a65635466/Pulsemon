@@ -3,6 +3,8 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using Microsoft.Win32;
+using PulseMon.Monitoring;
 using PulseMon.Models;
 using PulseMon.Services;
 
@@ -10,20 +12,29 @@ namespace PulseMon;
 
 public partial class MainWindow : Window
 {
+    private const double CpuAlertThresholdPercent = 70d;
+    private const double GpuAlertThresholdPercent = 60d;
     private static readonly TimeSpan RefreshInterval = TimeSpan.FromSeconds(1);
     public static readonly IValueConverter ProgressScaleConverter = new ProgressValueToScaleConverter();
 
     private readonly MonitoringService _monitoringService = new();
     private readonly DeviceInfoService _deviceInfoService = new();
+    private readonly CsvLogService _csvLogService = new();
+    private readonly StatusHistory _statusHistory = new();
     private readonly DispatcherTimer _refreshTimer;
+    private DeviceInfo? _deviceInfo;
     private bool _isMonitoringStopped;
+    private bool _cpuAlertActive;
+    private bool _gpuAlertActive;
 
     public event Action<SystemStatus>? StatusUpdated;
+    public event Action<string>? AlertRaised;
 
     public MainWindow()
     {
         InitializeComponent();
-        ApplyTheme(AppTheme.Black);
+        ApplyTheme(AppTheme.Light);
+        UsageChartCanvas.SizeChanged += OnUsageChartCanvasSizeChanged;
 
         _refreshTimer = new DispatcherTimer
         {
@@ -47,6 +58,7 @@ public partial class MainWindow : Window
         try
         {
             var deviceInfo = _deviceInfoService.GetDeviceInfo();
+            _deviceInfo = deviceInfo;
 
             DeviceModelText.Text = TrimForDisplay(deviceInfo.ModelName, 34);
             DeviceCpuText.Text = $"CPU  {TrimForDisplay(deviceInfo.CpuName, 34)}";
@@ -63,7 +75,13 @@ public partial class MainWindow : Window
 
     private void OnClosed(object? sender, EventArgs e)
     {
+        UsageChartCanvas.SizeChanged -= OnUsageChartCanvasSizeChanged;
         StopMonitoring();
+    }
+
+    private void OnUsageChartCanvasSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        UpdateUsageChart();
     }
 
     private void OnRefreshTimerTick(object? sender, EventArgs e)
@@ -92,7 +110,7 @@ public partial class MainWindow : Window
             : Math.Clamp((status.MemoryUsedGb / status.MemoryTotalGb) * 100, 0, 100);
 
         CpuProgressBar.Value = status.CpuUsagePercent;
-        CpuUsageText.Text = $"{status.CpuUsagePercent:0}%";
+        CpuUsageText.Text = $"{status.CpuUsagePercent:0}% / {FormatTemperature(status.CpuTemperatureCelsius)}";
 
         MemoryProgressBar.Value = memoryUsagePercent;
         MemoryUsageText.Text = $"{status.MemoryUsedGb:0.0} / {status.MemoryTotalGb:0.#} GB";
@@ -104,8 +122,140 @@ public partial class MainWindow : Window
 
         NetworkSpeedText.Text = $"D {status.DownloadMbps:0.0} Mbps  U {status.UploadMbps:0.0} Mbps";
 
+        BatteryPercentText.Text = status.BatteryPercent is null
+            ? "N/A"
+            : $"{status.BatteryPercent:0}%";
+        BatteryStatusText.Text = FormatBatteryStatus(status);
+
+        SensorStatusText.Text = $"CPU {FormatTemperature(status.CpuTemperatureCelsius)} / GPU {FormatTemperature(status.GpuTemperatureCelsius)} / FAN {FormatRpm(status.FanRpm)}";
+
         UpdatedAtText.Text = status.UpdatedAt.ToString("HH:mm:ss");
+        UpdateAlerts(status);
+        _statusHistory.Add(status);
+        UpdateUsageChart();
         StatusUpdated?.Invoke(status);
+    }
+
+    private void UpdateAlerts(SystemStatus status)
+    {
+        var cpuAlert = status.CpuUsagePercent > CpuAlertThresholdPercent;
+        var gpuAlert = status.GpuUsagePercent is > GpuAlertThresholdPercent;
+        var messages = new List<string>();
+
+        if (cpuAlert)
+        {
+            messages.Add($"CPU high: {status.CpuUsagePercent:0}%");
+        }
+
+        if (gpuAlert)
+        {
+            messages.Add($"GPU high: {status.GpuUsagePercent:0}%");
+        }
+
+        AlertStatusText.Text = messages.Count == 0
+            ? string.Empty
+            : $"⚠ {string.Join("   ⚠ ", messages)}";
+        AlertStatusText.Visibility = messages.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+
+        var newlyRaisedMessages = new List<string>();
+        if (cpuAlert && !_cpuAlertActive)
+        {
+            newlyRaisedMessages.Add(
+                $"CPU usage exceeded {CpuAlertThresholdPercent:0}% ({status.CpuUsagePercent:0}%)\n현재 CPU 사용량이 {CpuAlertThresholdPercent:0}%를 넘겼어요!");
+        }
+
+        if (gpuAlert && !_gpuAlertActive)
+        {
+            newlyRaisedMessages.Add(
+                $"GPU usage exceeded {GpuAlertThresholdPercent:0}% ({status.GpuUsagePercent:0}%)\n현재 GPU 사용량이 {GpuAlertThresholdPercent:0}%를 넘겼어요!");
+        }
+
+        _cpuAlertActive = cpuAlert;
+        _gpuAlertActive = gpuAlert;
+
+        if (newlyRaisedMessages.Count > 0)
+        {
+            AlertRaised?.Invoke(string.Join(" / ", newlyRaisedMessages));
+        }
+    }
+
+    private void UpdateUsageChart()
+    {
+        var samples = _statusHistory.GetSamples();
+        UsageChartCanvas.Children.Clear();
+        HistorySampleText.Text = $"{samples.Count} samples";
+
+        if (samples.Count < 2 || UsageChartCanvas.ActualWidth <= 0)
+        {
+            return;
+        }
+
+        var width = Math.Max(1, UsageChartCanvas.ActualWidth);
+        var height = Math.Max(1, UsageChartCanvas.ActualHeight);
+        AddChartLine(samples, width, height, sample => sample.CpuUsagePercent, "#EBC56F");
+        AddChartLine(samples, width, height, sample => sample.MemoryTotalGb <= 0 ? 0 : sample.MemoryUsedGb / sample.MemoryTotalGb * 100, "#7FD1AE");
+        AddChartLine(samples, width, height, sample => sample.GpuUsagePercent ?? 0, "#F28B82");
+    }
+
+    private void AddChartLine(IReadOnlyList<SystemStatus> samples, double width, double height, Func<SystemStatus, double> selector, string color)
+    {
+        var polyline = new System.Windows.Shapes.Polyline
+        {
+            Stroke = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(color)),
+            StrokeThickness = 1.5,
+            SnapsToDevicePixels = true
+        };
+
+        for (var index = 0; index < samples.Count; index++)
+        {
+            var x = samples.Count == 1 ? 0 : index * width / (samples.Count - 1);
+            var value = Math.Clamp(selector(samples[index]), 0, 100);
+            var y = height - value / 100 * height;
+            polyline.Points.Add(new System.Windows.Point(x, y));
+        }
+
+        UsageChartCanvas.Children.Add(polyline);
+    }
+
+    private void OnCopyDeviceInfoClicked(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            _deviceInfo ??= _deviceInfoService.GetDeviceInfo();
+            var info = $"Device: {_deviceInfo.ModelName}\nCPU: {_deviceInfo.CpuName}\nGPU: {_deviceInfo.GpuName}\nRAM: {FormatMemory(_statusHistory.GetSamples().LastOrDefault())}\nOS: {Environment.OSVersion.VersionString}";
+            System.Windows.Clipboard.SetText(info);
+        }
+        catch (Exception exception)
+        {
+            System.Diagnostics.Debug.WriteLine(exception);
+        }
+    }
+
+    private void OnExportCsvClicked(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Title = "Export PulseMon CSV",
+                Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*",
+                FileName = $"pulsemon-{DateTime.Now:yyyyMMdd-HHmmss}.csv"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                _csvLogService.Export(dialog.FileName, _statusHistory.GetSamples());
+            }
+        }
+        catch (Exception exception)
+        {
+            System.Diagnostics.Debug.WriteLine(exception);
+        }
+    }
+
+    private static string FormatMemory(SystemStatus? status)
+    {
+        return status is null ? "N/A" : $"{status.MemoryUsedGb:0.0} / {status.MemoryTotalGb:0.#} GB";
     }
 
     public void StopMonitoring()
@@ -138,6 +288,31 @@ public partial class MainWindow : Window
         return $"{usageText} / {temperatureText}";
     }
 
+    private static string FormatBatteryStatus(SystemStatus status)
+    {
+        if (status.BatteryPercent is null)
+        {
+            return "N/A";
+        }
+
+        if (status.BatteryRemainingTime is not TimeSpan remainingTime)
+        {
+            return status.BatteryStatus;
+        }
+
+        return $"{status.BatteryStatus} / {remainingTime.Hours:00}:{remainingTime.Minutes:00} left";
+    }
+
+    private static string FormatTemperature(double? temperatureCelsius)
+    {
+        return temperatureCelsius is null ? "N/A" : $"{temperatureCelsius:0} C";
+    }
+
+    private static string FormatRpm(double? rpm)
+    {
+        return rpm is null ? "N/A" : $"{rpm:0} RPM";
+    }
+
     private void OnRootPanelMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ButtonState == MouseButtonState.Pressed)
@@ -155,31 +330,35 @@ public partial class MainWindow : Window
     {
         if (theme == AppTheme.Black)
         {
-            SetBrush("WindowBackgroundBrush", "#15181D");
-            SetBrush("PanelBackgroundBrush", "#DF1F252D");
-            SetBrush("CardBackgroundBrush", "#18FFFFFF");
-            SetBrush("BorderBrush", "#24FFFFFF");
-            SetBrush("PrimaryTextBrush", "#F5F7FA");
-            SetBrush("SecondaryTextBrush", "#9AA4AF");
-            SetBrush("LabelTextBrush", "#C9D1D9");
-            SetBrush("MutedTrackBrush", "#24FFFFFF");
-            SetBrush("AccentBrush", "#36D6E7");
-            SetBrush("SuccessBrush", "#45E08F");
+            SetBrush("WindowBackgroundBrush", "#25211F");
+            SetBrush("PanelBackgroundBrush", "#25211F");
+            SetBrush("CardBackgroundBrush", "#342E2A");
+            SetBrush("BorderBrush", "#5A5048");
+            SetBrush("PrimaryTextBrush", "#FFF8EF");
+            SetBrush("SecondaryTextBrush", "#C8BDB2");
+            SetBrush("LabelTextBrush", "#E3D7CC");
+            SetBrush("MutedTrackBrush", "#51463E");
+            SetBrush("AccentBrush", "#D28A62");
+            SetBrush("SuccessBrush", "#8DB594");
+            SetBrush("TitleBarBrush", "#171412");
+            SetBrush("TitleBarTextBrush", "#FFF8EF");
             Background = System.Windows.Media.Brushes.Transparent;
             RootPanel.Effect = null;
             return;
         }
 
-        SetBrush("WindowBackgroundBrush", "#F5F7FA");
-        SetBrush("PanelBackgroundBrush", "#F2FFFFFF");
-        SetBrush("CardBackgroundBrush", "#E8EEF5");
-        SetBrush("BorderBrush", "#D6DEE8");
-        SetBrush("PrimaryTextBrush", "#17202A");
-        SetBrush("SecondaryTextBrush", "#667085");
-        SetBrush("LabelTextBrush", "#475467");
-        SetBrush("MutedTrackBrush", "#D9E2EC");
-        SetBrush("AccentBrush", "#0EA5E9");
-        SetBrush("SuccessBrush", "#16A34A");
+        SetBrush("WindowBackgroundBrush", "#10141D");
+        SetBrush("PanelBackgroundBrush", "#254EDB");
+        SetBrush("CardBackgroundBrush", "#1E3EB3");
+        SetBrush("BorderBrush", "#C49B3E");
+        SetBrush("PrimaryTextBrush", "#F8F9FA");
+        SetBrush("SecondaryTextBrush", "#D5DDF5");
+        SetBrush("LabelTextBrush", "#F8F9FA");
+        SetBrush("MutedTrackBrush", "#141A23");
+        SetBrush("AccentBrush", "#EBC56F");
+        SetBrush("SuccessBrush", "#EBC56F");
+        SetBrush("TitleBarBrush", "#1E3EB3");
+        SetBrush("TitleBarTextBrush", "#F8F9FA");
         Background = System.Windows.Media.Brushes.Transparent;
         RootPanel.Effect = null;
     }

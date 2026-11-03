@@ -15,6 +15,10 @@ internal static class NativeMethods
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static extern bool GlobalMemoryStatusEx(ref MemoryStatusEx lpBuffer);
 
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool GetSystemPowerStatus(out SystemPowerStatus systemPowerStatus);
+
     [StructLayout(LayoutKind.Sequential)]
     internal struct FileTime
     {
@@ -39,5 +43,16 @@ internal static class NativeMethods
         {
             Length = (uint)Marshal.SizeOf<MemoryStatusEx>();
         }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct SystemPowerStatus
+    {
+        public byte ACLineStatus;
+        public byte BatteryFlag;
+        public byte BatteryLifePercent;
+        public byte Reserved;
+        public int BatteryLifeTimeSeconds;
+        public int BatteryFullLifeTimeSeconds;
     }
 }

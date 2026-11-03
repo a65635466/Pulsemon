@@ -16,7 +16,7 @@ public partial class App : System.Windows.Application
     private MainWindow? _mainWindow;
     private SettingsWindow? _settingsWindow;
     private TrayManager? _trayManager;
-    private AppTheme _currentTheme = AppTheme.Black;
+    private AppTheme _currentTheme = AppTheme.Light;
     private bool _isExiting;
 
     protected override void OnStartup(StartupEventArgs e)
@@ -38,6 +38,7 @@ public partial class App : System.Windows.Application
         _mainWindow = new MainWindow();
         _mainWindow.Closing += OnMainWindowClosing;
         _mainWindow.StatusUpdated += OnMainWindowStatusUpdated;
+        _mainWindow.AlertRaised += OnMainWindowAlertRaised;
 
         _trayManager = new TrayManager(ToggleMainWindow, ShowMainWindow, ShowSettingsWindow, ExitApplication);
         ShowMainWindow();
@@ -55,6 +56,7 @@ public partial class App : System.Windows.Application
         {
             _mainWindow.Closing -= OnMainWindowClosing;
             _mainWindow.StatusUpdated -= OnMainWindowStatusUpdated;
+            _mainWindow.AlertRaised -= OnMainWindowAlertRaised;
             _mainWindow.StopMonitoring();
         }
 
@@ -186,6 +188,11 @@ public partial class App : System.Windows.Application
 
         var memoryUsagePercent = Math.Clamp((status.MemoryUsedGb / status.MemoryTotalGb) * 100, 0, 100);
         _trayManager?.UpdateMemoryUsage(memoryUsagePercent);
+    }
+
+    private void OnMainWindowAlertRaised(string message)
+    {
+        _trayManager?.ShowAlert(message);
     }
 
     private void OnMainWindowClosing(object? sender, System.ComponentModel.CancelEventArgs e)

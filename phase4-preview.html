@@ -1,0 +1,107 @@
+<div id="pulsemon-phase4-preview" class="p4-preview">
+  <style>
+    #pulsemon-phase4-preview {
+      --p4-ink: #f8f9fa;
+      --p4-muted: #d5ddf5;
+      --p4-blue: #254edb;
+      --p4-blue-dark: #1e3eb3;
+      --p4-gold: #ebc56f;
+      --p4-panel: #10141d;
+      --p4-card: #1e3eb3;
+      --p4-menu: #202734;
+      font-family: Consolas, ui-monospace, monospace;
+      color: var(--p4-ink);
+      max-width: 920px;
+      margin: 0 auto;
+    }
+    #pulsemon-phase4-preview * { box-sizing: border-box; }
+    #pulsemon-phase4-preview .p4-heading { margin: 0 0 12px; font-size: 18px; }
+    #pulsemon-phase4-preview .p4-subtitle { color: var(--p4-muted); font-size: 12px; margin-bottom: 18px; }
+    #pulsemon-phase4-preview .p4-layout { display: grid; grid-template-columns: minmax(300px, 380px) minmax(260px, 1fr); gap: 22px; align-items: start; }
+    #pulsemon-phase4-preview .p4-window { background: var(--p4-blue); border: 2px solid var(--p4-gold); border-radius: 10px; overflow: hidden; box-shadow: 0 12px 30px #0005; }
+    #pulsemon-phase4-preview .p4-titlebar { background: var(--p4-blue-dark); padding: 9px 12px; font-weight: 700; font-size: 12px; display: flex; justify-content: space-between; }
+    #pulsemon-phase4-preview .p4-body { padding: 14px; display: grid; gap: 10px; }
+    #pulsemon-phase4-preview .p4-card { background: var(--p4-card); border: 1px solid var(--p4-gold); padding: 10px; }
+    #pulsemon-phase4-preview .p4-label { font-size: 10px; color: var(--p4-muted); margin-bottom: 5px; }
+    #pulsemon-phase4-preview .p4-value { color: var(--p4-gold); font-size: 15px; font-weight: 700; }
+    #pulsemon-phase4-preview .p4-meter { height: 5px; background: #141a23; margin: 5px 0 8px; }
+    #pulsemon-phase4-preview .p4-meter span { display: block; height: 100%; background: var(--p4-gold); }
+    #pulsemon-phase4-preview .p4-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    #pulsemon-phase4-preview .p4-actions { display: flex; gap: 6px; margin-top: 4px; }
+    #pulsemon-phase4-preview button { border: 1px solid var(--p4-gold); background: var(--p4-card); color: var(--p4-ink); font: inherit; font-size: 11px; padding: 7px 9px; cursor: pointer; }
+    #pulsemon-phase4-preview button[aria-pressed="true"] { background: var(--p4-gold); color: #10141d; }
+    #pulsemon-phase4-preview .p4-tray { position: relative; min-height: 288px; }
+    #pulsemon-phase4-preview .p4-traybar { background: #171b24; border: 1px solid #48505f; border-radius: 7px; padding: 10px; display: flex; align-items: center; gap: 10px; color: var(--p4-muted); font-size: 12px; }
+    #pulsemon-phase4-preview .p4-dog { width: 28px; height: 28px; border-radius: 50%; background: var(--p4-gold); color: #10141d; display: grid; place-items: center; font-weight: 700; }
+    #pulsemon-phase4-preview .p4-menu { width: 250px; margin: 10px 0 0 72px; background: var(--p4-menu); border: 1px solid #5c6678; border-radius: 6px; padding: 6px; box-shadow: 0 12px 26px #0008; }
+    #pulsemon-phase4-preview .p4-menu div { padding: 9px 10px; color: var(--p4-ink); font-size: 12px; }
+    #pulsemon-phase4-preview .p4-menu .p4-menu-status { color: var(--p4-gold); border-bottom: 1px solid #4b5464; margin-bottom: 4px; }
+    #pulsemon-phase4-preview .p4-settings { margin-top: 14px; background: var(--p4-panel); border: 1px solid #48505f; padding: 12px; }
+    #pulsemon-phase4-preview .p4-settings h3 { margin: 0 0 10px; font-size: 12px; }
+    #pulsemon-phase4-preview .p4-setting { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--p4-muted); font-size: 11px; padding: 7px 0; border-bottom: 1px solid #2b3442; }
+    #pulsemon-phase4-preview .p4-setting:last-child { border-bottom: 0; }
+    #pulsemon-phase4-preview .p4-toggle { width: 34px; height: 18px; border-radius: 12px; background: #48505f; border: 0; padding: 2px; }
+    #pulsemon-phase4-preview .p4-toggle span { display: block; width: 14px; height: 14px; border-radius: 50%; background: var(--p4-muted); transition: transform .15s; }
+    #pulsemon-phase4-preview .p4-toggle[aria-pressed="true"] { background: var(--p4-gold); }
+    #pulsemon-phase4-preview .p4-toggle[aria-pressed="true"] span { transform: translateX(16px); background: #10141d; }
+    #pulsemon-phase4-preview .p4-flow { margin-top: 22px; padding: 12px; background: #10141d; border: 1px solid #48505f; color: var(--p4-muted); font-size: 11px; line-height: 1.8; }
+    #pulsemon-phase4-preview .p4-flow strong { color: var(--p4-gold); }
+    @media (max-width: 700px) { #pulsemon-phase4-preview .p4-layout { grid-template-columns: 1fr; } }
+  </style>
+
+  <h2 class="p4-heading">PulseMon Phase 4 — Tray usability preview</h2>
+  <div class="p4-subtitle">구현 전 화면과 동작 구조를 확인하는 설계 시안입니다.</div>
+
+  <div class="p4-layout">
+    <div class="p4-window">
+      <div class="p4-titlebar"><span>PulseMon — System Monitor</span><span>● ×</span></div>
+      <div class="p4-body">
+        <div class="p4-card"><div class="p4-label">CPU LOAD</div><div class="p4-meter"><span style="width: 42%"></span></div><div class="p4-row"><span class="p4-label">Current usage</span><span class="p4-value">42% / 71 C</span></div></div>
+        <div class="p4-card"><div class="p4-label">MEMORY</div><div class="p4-meter"><span style="width: 68%"></span></div><div class="p4-row"><span class="p4-label">Used / total</span><span class="p4-value">10.8 / 16 GB</span></div></div>
+        <div class="p4-card"><div class="p4-label">ALERT STATE</div><div class="p4-row"><span>All thresholds normal</span><span class="p4-value">READY</span></div></div>
+        <div class="p4-actions">
+          <button type="button" data-view="settings" aria-pressed="false">Open settings preview</button>
+          <button type="button" data-view="tray" aria-pressed="true">Tray menu preview</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="p4-tray">
+      <div class="p4-traybar"><div class="p4-dog">P</div><span>Windows system tray</span><span style="margin-left:auto;color:var(--p4-gold)">CPU 42%</span></div>
+      <div class="p4-menu" data-panel="tray">
+        <div class="p4-menu-status">PulseMon&nbsp;&nbsp; CPU 42% · RAM 68%</div>
+        <div>Open monitor</div>
+        <div>Settings</div>
+        <div>Exit</div>
+      </div>
+      <div class="p4-settings" data-panel="settings" hidden>
+        <h3>PulseMon Settings</h3>
+        <div class="p4-setting"><span>Alert notifications</span><button class="p4-toggle" type="button" aria-pressed="true"><span></span></button></div>
+        <div class="p4-setting"><span>Start with Windows</span><button class="p4-toggle" type="button" aria-pressed="false"><span></span></button></div>
+        <div class="p4-setting"><span>Update interval</span><span style="color:var(--p4-gold)">1 second ▾</span></div>
+        <div class="p4-setting"><span>Theme</span><span style="color:var(--p4-gold)">Light / Dark ▾</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="p4-flow"><strong>동작 흐름</strong><br>센서 값 갱신 → 임계값 비교 → 조건 충족 시 토스트 알림(쿨다운) → 트레이 아이콘 상태 반영<br><strong>설정 저장</strong>: 알림·임계값·갱신 주기·자동 시작·테마를 한 곳에서 변경</div>
+
+  <script>
+    (() => {
+      const root = document.getElementById('pulsemon-phase4-preview');
+      const tray = root.querySelector('[data-panel="tray"]');
+      const settings = root.querySelector('[data-panel="settings"]');
+      root.querySelectorAll('[data-view]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const isSettings = button.dataset.view === 'settings';
+          tray.hidden = isSettings;
+          settings.hidden = !isSettings;
+          root.querySelectorAll('[data-view]').forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+        });
+      });
+      root.querySelectorAll('.p4-toggle').forEach((button) => {
+        button.addEventListener('click', () => button.setAttribute('aria-pressed', String(button.getAttribute('aria-pressed') !== 'true')));
+      });
+    })();
+  </script>
+</div>

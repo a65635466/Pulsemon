@@ -21,11 +21,11 @@
 
             <StackPanel Orientation="Horizontal">
                 <RadioButton x:Name="BlackThemeRadioButton"
-                             Content="Black"
+                             Content="Warm dark"
                              Margin="0,0,18,0"
                              Checked="OnBlackThemeChecked" />
                 <RadioButton x:Name="LightThemeRadioButton"
-                             Content="Light"
+                             Content="Claude warm"
                              Checked="OnLightThemeChecked" />
             </StackPanel>
 

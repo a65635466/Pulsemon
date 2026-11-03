@@ -1,0 +1,126 @@
+<div id="pulsemon-design-options" aria-label="PulseMon interface design options">
+  <style>
+    #pulsemon-design-options { --pm-ink:#2d2a27; --pm-muted:#77716a; --pm-line:#d6d0c6; --pm-paper:#f7f3ec; --pm-panel:#fffdf9; --pm-accent:#b46f4d; --pm-blue:#315d86; color:var(--pm-ink); font-family:Segoe UI, Tahoma, sans-serif; max-width:1024px; margin:0 auto; }
+    #pulsemon-design-options * { box-sizing:border-box; }
+    .pm-choicebar { display:flex; gap:8px; flex-wrap:wrap; margin:0 0 16px; }
+    .pm-choicebar button { border:1px solid var(--pm-line); background:var(--pm-panel); color:var(--pm-ink); padding:9px 13px; border-radius:4px; cursor:pointer; font:inherit; }
+    .pm-choicebar button[aria-pressed="true"] { background:#2f2c29; color:#fffdf9; border-color:#2f2c29; }
+    .pm-option { display:none; }
+    .pm-option.pm-active { display:block; }
+    .pm-caption { color:var(--pm-muted); margin:0 0 10px; font-size:13px; }
+    .pm-window { overflow:hidden; background:var(--pm-paper); border:1px solid #aaa39a; box-shadow:0 12px 30px rgba(61,49,38,.13); }
+    .pm-titlebar { display:flex; align-items:center; justify-content:space-between; padding:7px 9px; color:#fff; background:#383431; font-size:13px; }
+    .pm-titlebar .pm-controls { display:flex; gap:5px; }
+    .pm-titlebar i { width:10px; height:10px; border-radius:50%; display:block; background:#d7c4b6; }
+    .pm-body { padding:18px; }
+    .pm-heading { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--pm-line); padding-bottom:12px; margin-bottom:14px; }
+    .pm-heading h2 { margin:0; font-size:20px; font-weight:500; }
+    .pm-heading span { color:var(--pm-muted); font-size:12px; }
+    .pm-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .pm-metric { background:var(--pm-panel); border:1px solid var(--pm-line); padding:12px; min-height:92px; }
+    .pm-metric .pm-label { color:var(--pm-muted); font-size:12px; margin-bottom:7px; }
+    .pm-value { font-size:23px; font-variant-numeric:tabular-nums; }
+    .pm-value small { font-size:12px; color:var(--pm-muted); }
+    .pm-meter { height:5px; background:#e7e0d6; margin-top:10px; }
+    .pm-meter b { display:block; height:100%; background:var(--pm-accent); }
+    .pm-footer { margin-top:14px; display:flex; justify-content:space-between; color:var(--pm-muted); font-size:12px; }
+    .pm-menu { margin-top:12px; border-top:1px solid var(--pm-line); padding-top:10px; display:flex; gap:16px; font-size:12px; }
+
+    .pm-option[data-design="classic"] .pm-window { background:#c0c0c0; border:2px outset #e5e5e5; box-shadow:none; }
+    .pm-option[data-design="classic"] .pm-titlebar { background:linear-gradient(90deg,#0a246a,#3a6ea5); font-family:"MS Sans Serif",Tahoma,sans-serif; }
+    .pm-option[data-design="classic"] .pm-body { padding:10px; background:#c0c0c0; }
+    .pm-option[data-design="classic"] .pm-heading { background:#d9d9d9; border:2px inset #fff; padding:6px; margin-bottom:8px; }
+    .pm-option[data-design="classic"] .pm-heading h2 { font-size:15px; font-family:"MS Sans Serif",Tahoma,sans-serif; }
+    .pm-option[data-design="classic"] .pm-grid { gap:6px; }
+    .pm-option[data-design="classic"] .pm-metric { background:#fff; border:2px inset #fff; padding:8px; min-height:78px; }
+    .pm-option[data-design="classic"] .pm-meter { height:10px; border:2px inset #fff; background:#c0c0c0; }
+    .pm-option[data-design="classic"] .pm-meter b { background:#008080; }
+    .pm-option[data-design="classic"] .pm-menu { background:#d9d9d9; border:2px outset #eee; padding:5px; color:#000; }
+
+    .pm-option[data-design="terminal"] .pm-window { background:#111713; border:1px solid #536357; box-shadow:0 12px 28px rgba(0,0,0,.2); }
+    .pm-option[data-design="terminal"] .pm-titlebar { background:#1b261f; color:#b9d7bd; font-family:Consolas,monospace; }
+    .pm-option[data-design="terminal"] .pm-body { padding:18px; font-family:Consolas,"Courier New",monospace; color:#b9d7bd; }
+    .pm-option[data-design="terminal"] .pm-heading { border-bottom:1px dashed #536357; }
+    .pm-option[data-design="terminal"] .pm-heading h2 { font-size:18px; }
+    .pm-option[data-design="terminal"] .pm-heading span, .pm-option[data-design="terminal"] .pm-metric .pm-label, .pm-option[data-design="terminal"] .pm-footer { color:#829a86; }
+    .pm-option[data-design="terminal"] .pm-metric { background:#151d18; border:1px solid #536357; }
+    .pm-option[data-design="terminal"] .pm-value { color:#d5f0d8; }
+    .pm-option[data-design="terminal"] .pm-meter { background:#263329; }
+    .pm-option[data-design="terminal"] .pm-meter b { background:#82c98b; }
+    .pm-option[data-design="terminal"] .pm-menu { border-color:#536357; }
+    .pm-option[data-design="terminal"] .pm-titlebar i { background:#82c98b; }
+
+    @media (max-width:620px) { .pm-grid { grid-template-columns:1fr; } .pm-body { padding:12px; } }
+  </style>
+  <div class="pm-choicebar" role="tablist" aria-label="PulseMon design choices">
+    <button type="button" role="tab" aria-selected="true" aria-pressed="true" data-pm-select="claude">1. Claude + 클래식</button>
+    <button type="button" role="tab" aria-selected="false" aria-pressed="false" data-pm-select="classic">2. 순수 레트로 Windows</button>
+    <button type="button" role="tab" aria-selected="false" aria-pressed="false" data-pm-select="terminal">3. 레트로 터미널</button>
+  </div>
+
+  <section class="pm-option pm-active" data-design="claude" role="tabpanel">
+    <p class="pm-caption">따뜻한 Claude식 미니멀 디자인에 고전적인 작은 Windows 상태창을 섞은 방향</p>
+    <div class="pm-window">
+      <div class="pm-titlebar"><span>PulseMon — System Monitor</span><span class="pm-controls"><i></i><i></i><i></i></span></div>
+      <div class="pm-body">
+        <div class="pm-heading"><h2>System status</h2><span>Updated just now</span></div>
+        <div class="pm-grid">
+          <div class="pm-metric"><div class="pm-label">CPU usage</div><div class="pm-value">23<small>%</small></div><div class="pm-meter"><b style="width:23%"></b></div></div>
+          <div class="pm-metric"><div class="pm-label">Memory</div><div class="pm-value">8.2<small> / 16 GB</small></div><div class="pm-meter"><b style="width:51%"></b></div></div>
+          <div class="pm-metric"><div class="pm-label">GPU</div><div class="pm-value">14<small>%</small></div><div class="pm-meter"><b style="width:14%"></b></div></div>
+          <div class="pm-metric"><div class="pm-label">Temperature</div><div class="pm-value">52<small>°C</small></div><div class="pm-meter"><b style="width:52%"></b></div></div>
+        </div>
+        <div class="pm-footer"><span>↓ 32 Mbps&nbsp;&nbsp; ↑ 4 Mbps</span><span>Monitoring active</span></div>
+        <div class="pm-menu"><span>Settings</span><span>About</span><span>Exit PulseMon</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pm-option" data-design="classic" role="tabpanel">
+    <p class="pm-caption">Windows 95/98의 회색 패널, 파란 제목 표시줄, 입체 버튼을 가장 강하게 살린 방향</p>
+    <div class="pm-window">
+      <div class="pm-titlebar"><span>PulseMon - System Monitor</span><span class="pm-controls"><i></i><i></i><i></i></span></div>
+      <div class="pm-body">
+        <div class="pm-heading"><h2>System status</h2><span>1 sec refresh</span></div>
+        <div class="pm-grid">
+          <div class="pm-metric"><div class="pm-label">CPU usage</div><div class="pm-value">23<small>%</small></div><div class="pm-meter"><b style="width:23%"></b></div></div>
+          <div class="pm-metric"><div class="pm-label">Memory</div><div class="pm-value">8.2<small> / 16 GB</small></div><div class="pm-meter"><b style="width:51%"></b></div></div>
+          <div class="pm-metric"><div class="pm-label">GPU</div><div class="pm-value">14<small>%</small></div><div class="pm-meter"><b style="width:14%"></b></div></div>
+          <div class="pm-metric"><div class="pm-label">Temperature</div><div class="pm-value">52<small>°C</small></div><div class="pm-meter"><b style="width:52%"></b></div></div>
+        </div>
+        <div class="pm-footer"><span>↓ 32 Mbps&nbsp;&nbsp; ↑ 4 Mbps</span><span>Monitoring active</span></div>
+        <div class="pm-menu"><span>File</span><span>Options</span><span>Help</span><span>Exit</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pm-option" data-design="terminal" role="tabpanel">
+    <p class="pm-caption">옛날 시스템 도구와 DOS 터미널 분위기를 결합한 개발자용 모니터 디자인</p>
+    <div class="pm-window">
+      <div class="pm-titlebar"><span>C:\PulseMon\monitor.exe</span><span class="pm-controls"><i></i><i></i><i></i></span></div>
+      <div class="pm-body">
+        <div class="pm-heading"><h2>&gt; SYSTEM_STATUS</h2><span>refresh: 1s</span></div>
+        <div class="pm-grid">
+          <div class="pm-metric"><div class="pm-label">CPU_USAGE</div><div class="pm-value">23<small>%</small></div><div class="pm-meter"><b style="width:23%"></b></div></div>
+          <div class="pm-metric"><div class="pm-label">MEMORY</div><div class="pm-value">8.2<small> / 16 GB</small></div><div class="pm-meter"><b style="width:51%"></b></div></div>
+          <div class="pm-metric"><div class="pm-label">GPU_USAGE</div><div class="pm-value">14<small>%</small></div><div class="pm-meter"><b style="width:14%"></b></div></div>
+          <div class="pm-metric"><div class="pm-label">GPU_TEMP</div><div class="pm-value">52<small>°C</small></div><div class="pm-meter"><b style="width:52%"></b></div></div>
+        </div>
+        <div class="pm-footer"><span>NET: ↓ 32 Mbps&nbsp;&nbsp; ↑ 4 Mbps</span><span>STATUS: OK</span></div>
+        <div class="pm-menu"><span>[S]ettings</span><span>[A]bout</span><span>[Q]uit</span></div>
+      </div>
+    </div>
+  </section>
+  <script>
+    (() => {
+      const root = document.getElementById('pulsemon-design-options');
+      const buttons = root.querySelectorAll('[data-pm-select]');
+      const panels = root.querySelectorAll('.pm-option');
+      buttons.forEach(button => button.addEventListener('click', () => {
+        const selected = button.dataset.pmSelect;
+        buttons.forEach(item => { const active = item === button; item.setAttribute('aria-selected', active); item.setAttribute('aria-pressed', active); });
+        panels.forEach(panel => panel.classList.toggle('pm-active', panel.dataset.design === selected));
+      }));
+    })();
+  </script>
+</div>
