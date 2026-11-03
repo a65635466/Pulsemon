@@ -4,38 +4,35 @@ namespace PulseMon.Monitoring;
 
 public sealed class HardwareSensorMonitor : IDisposable
 {
-    private readonly Computer? _computer;
+    private readonly object _sync = new();
+    private Computer? _computer;
     private bool _disposed;
 
     public HardwareSensorMonitor()
     {
-        try
-        {
-            _computer = new Computer
-            {
-                IsCpuEnabled = true,
-                IsGpuEnabled = true,
-                IsMotherboardEnabled = true,
-                IsControllerEnabled = true
-            };
-
-            _computer.Open();
-        }
-        catch
-        {
-            _computer = null;
-        }
+        _ = Task.Run(InitializeComputer);
     }
 
     public HardwareSensorSnapshot GetSnapshot()
     {
-        if (_disposed || _computer is null)
+        Computer? computer;
+        lock (_sync)
+        {
+            if (_disposed)
+            {
+                return HardwareSensorSnapshot.Unavailable;
+            }
+
+            computer = _computer;
+        }
+
+        if (computer is null)
         {
             return HardwareSensorSnapshot.Unavailable;
         }
 
         var visitor = new UpdateVisitor();
-        _computer.Accept(visitor);
+        computer.Accept(visitor);
 
         double? cpuTemperature = null;
         double? gpuTemperature = null;
@@ -51,13 +48,52 @@ public sealed class HardwareSensorMonitor : IDisposable
 
     public void Dispose()
     {
-        if (_disposed)
+        Computer? computer;
+        lock (_sync)
         {
-            return;
+            if (_disposed)
+            {
+                return;
+            }
+
+            _disposed = true;
+            computer = _computer;
+            _computer = null;
         }
 
-        _computer?.Close();
-        _disposed = true;
+        computer?.Close();
+    }
+
+    private void InitializeComputer()
+    {
+        Computer? computer = null;
+        try
+        {
+            computer = new Computer
+            {
+                IsCpuEnabled = true,
+                IsGpuEnabled = true,
+                IsMotherboardEnabled = true,
+                IsControllerEnabled = true
+            };
+
+            computer.Open();
+
+            lock (_sync)
+            {
+                if (_disposed)
+                {
+                    computer.Close();
+                    return;
+                }
+
+                _computer = computer;
+            }
+        }
+        catch
+        {
+            computer?.Close();
+        }
     }
 
     private static void ReadHardware(
